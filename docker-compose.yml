@@ -1,4 +1,4 @@
-version: "3.3"
+version: "3.7"
 
 networks:
   net:
@@ -9,6 +9,7 @@ volumes:
     prometheus: {}
     grafana: {}
     alertmanager: {}
+    loki-data: {}
 
 configs:
   caddy_config:
@@ -21,6 +22,10 @@ configs:
     file: ./prometheus/rules/swarm_task.rules.yml
   prometheus_test:
     file: ./prometheus/conf/prometheus.yml
+  loki_config:
+    file: ./loki/loki-local-config.yaml
+  promtail_config:
+    file: ./promtail/promtail-docker-config.yaml
 
 services:
 #  dockerd-exporter:
@@ -39,26 +44,51 @@ services:
 #          memory: 128M
 #        reservations:
 #          memory: 64M
-#
-#  cadvisor:
-#    image: google/cadvisor
-#    networks:
-#      - net
-#    command: -logtostderr -docker_only
-#    volumes:
-#      - /var/run/docker.sock:/var/run/docker.sock:ro
-#      - /:/rootfs:ro
-#      - /var/run:/var/run
-#      - /sys:/sys:ro
-#      - /var/lib/docker/:/var/lib/docker:ro
-#    deploy:
-#      mode: global
-#      resources:
-#        limits:
-#          memory: 128M
-#        reservations:
-#          memory: 64M
-#
+
+  loki:
+    image: grafana/loki:latest
+    command: -config.file=/etc/loki/loki-local-config.yaml
+    deploy:
+      mode: replicated
+      placement:
+        constraints:
+          - node.role == manager
+      replicas: 1
+    volumes:
+      - loki-data:/data/loki
+    networks:
+      - net
+
+  promtail:
+    image: grafana/promtail:master-7212564
+    volumes:
+      - /var/log:/var/log
+    configs:
+      - source: promtail_config
+        target: /etc/promtail/docker-config.yaml
+    command: -config.file=/etc/promtail/docker-config.yaml
+    networks:
+      - net
+
+  cadvisor:
+    image: google/cadvisor
+    networks:
+      - net
+    command: -logtostderr -docker_only
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /:/rootfs:ro
+      - /var/run:/var/run
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    deploy:
+      mode: global
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+
   grafana:
     image: grafana/grafana:7.0.3
     networks:
@@ -162,8 +192,3 @@ services:
           memory: 128M
         reservations:
           memory: 64M
-#    healthcheck:
-#      test: ["CMD", "curl", "-f", "http://localhost:3000"]
-#      interval: 5s
-#      timeout: 1s
-#      retries: 5
