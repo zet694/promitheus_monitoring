@@ -1,4 +1,4 @@
-version: "3.7"
+version: "3.3"
 
 networks:
   net:
@@ -82,7 +82,7 @@ services:
           memory: 64M
 
   node-exporter:
-    image: prom/node-exporter:v1.0.1
+    image: zet694/zet694_node_exporter
     networks:
       - net
     environment:
@@ -107,7 +107,7 @@ services:
           memory: 64M
 
   prometheus:
-    image: prom/prometheus:v2.19.0
+    image: zet694/zet694_prometheus
     networks:
       - net
     command:
