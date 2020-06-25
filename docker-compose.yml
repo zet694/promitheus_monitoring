@@ -48,6 +48,8 @@ services:
   loki:
     image: grafana/loki:latest
     command: -config.file=/etc/loki/loki-local-config.yaml
+    volumes:
+      - loki-data:/data/loki
     deploy:
       mode: replicated
       placement:
@@ -68,6 +70,13 @@ services:
       - source: promtail_config
         target: /etc/promtail/docker-config.yaml
     command: -config.file=/etc/promtail/docker-config.yaml
+    deploy:
+      mode: global
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
     networks:
       - net
 
@@ -113,7 +122,7 @@ services:
           memory: 64M
 
   node-exporter:
-    image: zet694/zet694_node_exporter:v2
+    image: zet694/zet694_node_exporter
     networks:
       - net
     environment:
