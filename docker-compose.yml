@@ -14,8 +14,6 @@ volumes:
 configs:
   caddy_config:
     file: ./caddy/Caddyfile
-  dockerd_config:
-    file: ./dockerd-exporter/Caddyfile
   prometheus_test:
     file: ./prometheus/conf/prometheus.yml
 
@@ -70,7 +68,7 @@ services:
           memory: 64M
 
   node-exporter:
-    image: zet694/zet694_node_exporter
+    image: zet694/zet694_node_exporter:v1.0.1
     networks:
       - net
     environment:
