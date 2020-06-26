@@ -16,38 +16,12 @@ configs:
     file: ./caddy/Caddyfile
   dockerd_config:
     file: ./dockerd-exporter/Caddyfile
-  node_rules:
-    file: ./prometheus/rules/swarm_node.rules.yml
-  task_rules:
-    file: ./prometheus/rules/swarm_task.rules.yml
   prometheus_test:
     file: ./prometheus/conf/prometheus.yml
-  loki_config:
-    file: ./loki/loki-local-config.yaml
-  promtail_config:
-    file: ./promtail/promtail-docker-config.yaml
 
 services:
-#  dockerd-exporter:
-#    image: stefanprodan/caddy
-#    networks:
-#      - net
-#    environment:
-#      - DOCKER_GWBRIDGE_IP=172.18.0.1
-#    configs:
-#      - source: dockerd_config
-#        target: /etc/caddy/Caddyfile
-#    deploy:
-#      mode: global
-#      resources:
-#        limits:
-#          memory: 128M
-#        reservations:
-#          memory: 64M
-
   loki:
-    image: grafana/loki:latest
-    command: -config.file=/etc/loki/loki-local-config.yaml
+    image: zet694/zet694_loki:k23-aee064d
     volumes:
       - loki-data:/data/loki
     deploy:
@@ -56,20 +30,13 @@ services:
         constraints:
           - node.role == manager
       replicas: 1
-    configs:
-      - source: loki_config
-        target: /etc/loki/loki-local-config.yaml
     networks:
       - net
 
   promtail:
-    image: grafana/promtail:master-7212564
+    image: zet694/zet694_promtail:master-7212564
     volumes:
       - /var/log:/var/log
-    configs:
-      - source: promtail_config
-        target: /etc/promtail/docker-config.yaml
-    command: -config.file=/etc/promtail/docker-config.yaml
     deploy:
       mode: global
       resources:
@@ -79,25 +46,6 @@ services:
           memory: 64M
     networks:
       - net
-
-  cadvisor:
-    image: google/cadvisor
-    networks:
-      - net
-    command: -logtostderr -docker_only
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /:/rootfs:ro
-      - /var/run:/var/run
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-    deploy:
-      mode: global
-      resources:
-        limits:
-          memory: 128M
-        reservations:
-          memory: 64M
 
   grafana:
     image: grafana/grafana:7.0.3
@@ -153,17 +101,11 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-#      - '--storage.tsdb.retention=${PROMETHEUS_RETENTION:-24h}'
     volumes:
       - prometheus:/prometheus
     configs:
       - source: prometheus_test
         target: /etc/prometheus/prometheus.yml
-#    configs:
-#      - source: node_rules
-#        target: /etc/prometheus/swarm_node.rules.yml
-#      - source: task_rules
-#        target: /etc/prometheus/swarm_task.rules.yml
     deploy:
       mode: replicated
       replicas: 1
