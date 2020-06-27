@@ -46,7 +46,7 @@ services:
       - net
 
   grafana:
-    image: grafana/grafana:7.0.3
+    image: zet694/zet694_grafana:7.0.4
     networks:
       - net
     environment:
