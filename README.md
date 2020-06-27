@@ -1,12 +1,13 @@
-# Monitoring \ Logging
+# Docker Swarm - Promitheus, Grafana, Node Exporter, Loki, Promtail, Caddy
 
 Stack for monitoring and logging: 
 
 - [Prometheus](https://prometheus.io/),
 - [Grafana](http://grafana.org/),
-- [cAdvisor](https://github.com/google/cadvisor),
 - [Node Exporter](https://github.com/prometheus/node_exporter),
-- [Alert Manager](https://github.com/prometheus/alertmanager)
+- [Loki](https://github.com/grafana/loki)
+- [Promtail](https://github.com/grafana/loki/tree/master/docs/clients/promtail)
+- [Caddy](https://github.com/caddyserver/caddy)
 
 Prerequisites:
 
