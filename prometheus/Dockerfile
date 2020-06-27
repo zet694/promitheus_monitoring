@@ -1,7 +1,6 @@
 FROM prom/prometheus:v2.19.1
 # https://hub.docker.com/r/prom/prometheus/tags/
 
-ENV WEAVE_TOKEN=none
 COPY conf /etc/prometheus/
 
 ENTRYPOINT ["sh", "/etc/prometheus/docker-entrypoint.sh" ]
